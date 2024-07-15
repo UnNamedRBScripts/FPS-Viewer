@@ -1,37 +1,27 @@
---[[
-	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
-]]
--- GUI elemanlarını oluşturmak için kullanacağımız servisleri çağırıyoruz
-local GuiService = game:GetService("GuiService")
-local Players = game:GetService("Players")
-
--- GUI için ScreenGui objesi oluşturuyoruz
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "FPSCounter" -- ScreenGui'nin adını ayarlıyoruz
-screenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui") -- Oyuncunun ekran GUI'sine ekliyoruz
-
--- FPS değerini gösterecek metin kutusunu oluşturuyoruz
-local fpsDisplay = Instance.new("TextLabel")
-fpsDisplay.Name = "FPSDisplay" -- Metin kutusunun adını ayarlıyoruz
-fpsDisplay.Size = UDim2.new(0, 100, 0, 20) -- Boyutunu ayarlıyoruz
-fpsDisplay.Position = UDim2.new(0, 10, 0, 10) -- Konumunu ayarlıyoruz
-fpsDisplay.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Arka plan rengini ayarlıyoruz
-fpsDisplay.TextColor3 = Color3.fromRGB(255, 255, 255) -- Metin rengini ayarlıyoruz
-fpsDisplay.TextSize = 18 -- Metin boyutunu ayarlıyoruz
-fpsDisplay.Font = Enum.Font.SourceSans -- Kullanılacak fontu ayarlıyoruz
-fpsDisplay.Text = "FPS: --" -- Başlangıç metnini ayarlıyoruz
-
--- Metin kutusunu ScreenGui içine ekliyoruz
-fpsDisplay.Parent = screenGui
-
--- FPS değerini güncelleyecek olan işlevi tanımlıyoruz
-local function updateFPS()
-    local fps = 1 / game:GetService("RunService").RenderStepped:Wait() -- Mevcut FPS değerini hesaplıyoruz
-    fpsDisplay.Text = string.format("FPS: %.2f", fps) -- Metin kutusunu güncelliyoruz
+screenGui.Name = "FPSGui"
+screenGui.Parent = game:GetService("CoreGui")
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Name = "FPSLabel"
+fpsLabel.Size = UDim2.new(0, 100, 0, 50)
+fpsLabel.Position = UDim2.new(0, 1750, 0, -41)
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.TextColor3 = Color3.new(1, 1, 1)
+fpsLabel.TextStrokeTransparency = 0
+fpsLabel.Font = Enum.Font.SourceSans
+fpsLabel.TextSize = 40
+fpsLabel.Parent = screenGui
+local function calculateFPS()
+    local lastTime = tick()
+    local frames = 0
+        game:GetService("RunService").RenderStepped:Connect(function()
+        frames = frames + 1
+        local currentTime = tick()
+        if currentTime - lastTime >= 0.1 then
+            fpsLabel.Text = "FPS: " .. tostring(math.floor(frames / (currentTime - lastTime)))
+            frames = 0
+            lastTime = currentTime
+        end
+    end)
 end
-
--- Her kare yenilemesinde FPS değerini güncellemek için bir döngü oluşturuyoruz
-while true do
-    updateFPS() -- FPS değerini güncelliyoruz
-    wait(1) -- 1 saniye bekliyoruz (FPS değerini her saniye bir kez güncellemek için)
-end
+calculateFPS()
